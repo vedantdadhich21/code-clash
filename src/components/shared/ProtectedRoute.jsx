@@ -1,12 +1,17 @@
-import React from 'react'
 import { Outlet ,Navigate} from 'react-router-dom'
-import { EmptyDemo } from '@/pages/NotLogIn'
+import { NotLogIn } from '@/pages/NotLogIn'
+import useAuthStore from '@/store/useAuthStore'
+import Auth from '@/pages/Auth'
 const ProtectedRoute = () => {
-  const user = null  // not logged in
+  const user = useAuthStore((state) => state.user)
+  const isLoading = useAuthStore((state) => state.isLoading)
 
+  if(isLoading){
+    return null;
+  }
   if (!user) {
     return <>
-    <EmptyDemo/>
+    <Auth/>
     </>
   }
   return (

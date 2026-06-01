@@ -1,19 +1,57 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-const Navbar = () => {
-  return (
-    <>
-   <div className='flex flex-row items-end w-screen h-15 text-4xl border-b-2  p-2 ' >
-   <Link to='/' className='pl-5 font-bold'>CodeClash</Link>
-   <div className='pl-4 text-2xl'>
-    <Link to='/'>Home </Link>
-    <Link to='battle'>Battle </Link>
-    <Link to='leaderboard'>Leaderboard </Link>
-   </div>
-   </div>
-     
-    </>
-  )
-}
+import { Link, Navigate } from "react-router-dom";
+import { signInWithPopup, signOut } from 'firebase/auth'
+import { auth, googleProvider } from '@/firebase/config'
+import useAuthStore from '@/store/useAuthStore'
+import { Button } from '@/components/ui/button'
+import { useNavigate } from "react-router-dom";
 
-export default Navbar
+const Navbar = () => {
+  const navigate = useNavigate()
+    const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
+  console.log(user)
+
+  const handleLogout = async () => {
+    await signOut(auth)
+    logout()
+  }
+
+  return (
+    <nav className="flex items-center justify-between w-full h-18 border-b border-border px-8">
+      {/* Left — Logo */}
+      <Link
+        to="/"
+        className="text-4xl font-bold tracking-tight hover:opacity-80 transition-opacity"
+      >
+        CodeClash
+      </Link>
+
+      {/* Center — Nav Links */}
+      <div className="flex items-center gap-8 text-base font-medium text-muted-foreground">
+        <Link to="/" className="hover:text-foreground transition-colors">
+          Home
+        </Link>
+        <Link
+          to="/leaderboard"
+          className="hover:text-foreground transition-colors"
+        >
+          Leaderboard
+        </Link>
+      </div>
+
+      {/* Right — Auth */}
+      <div className="flex items-center gap-3">
+      {user ? (
+        <div className="flex items-center gap-4">
+          <span className="text-sm font-bold text-muted-foreground">{user.displayName}</span>
+          <Button variant="outline" onClick={handleLogout}>Logout</Button>
+        </div>
+      ) : (
+        <Button onClick={() => navigate('/auth')}>Log In</Button>
+      )}
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;

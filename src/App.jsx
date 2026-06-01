@@ -1,43 +1,60 @@
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom'
-import Navbar from '@/components/shared/Navbar'
-import ProtectedRoute from '@/components/shared/ProtectedRoute'
-import Home from '@/pages/Home'
-import Lobby from '@/pages/Lobby'
-import Battle from '@/pages/Battle'
-import Results from '@/pages/Results'
-import Leaderboard from '@/pages/Leaderboard.jsx'
-import Profile from '@/pages/Profile'
-import ErrorPage from './ErrorPage'
-
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import Navbar from "@/components/shared/Navbar";
+import ProtectedRoute from "@/components/shared/ProtectedRoute";
+import Home from "@/pages/Home";
+import Lobby from "@/pages/Lobby";
+import Battle from "@/pages/Battle";
+import Results from "@/pages/Results";
+import Leaderboard from "@/pages/LeaderBoard";
+import Profile from "@/pages/Profile";
+import ErrorPage from "./ErrorPage";
+import { useEffect } from "react";
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/firebase/config'
+import useAuthStore from '@/store/useAuthStore'
+import Auth from "./pages/auth";
 function Layout() {
   return (
     <div className="min-h-screen text-foreground">
       <Navbar />
       <Outlet />
     </div>
-  )
+  );
 }
 
 const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <Home /> },
-      { path: '/leaderboard', element: <Leaderboard /> },
+      { path: "/", element: <Home /> },
+      { path: "/leaderboard", element: <Leaderboard /> },
+      {path: "/auth" , element: <Auth/>},
       {
         element: <ProtectedRoute />,
         children: [
-          { path: '/lobby/:roomId', element: <Lobby /> },
-          { path: '/battle', element: <Battle /> },
-          { path: '/results/:roomId', element: <Results /> },
-          { path: '/profile/:userId', element: <Profile /> },
-        ]
-      }
+          { path: "/lobby/:roomId", element: <Lobby /> },
+          { path: "/battle/:roomId", element: <Battle /> },
+          { path: "/results/:roomId", element: <Results /> },
+          { path: "/profile/:userId", element: <Profile /> },
+        ],
+      },
     ],
-    errorElement: <ErrorPage/>
-  }
-])
+    errorElement: <ErrorPage />,
+  },
+]);
 
 export default function App() {
-  return <RouterProvider router={router} />
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        useAuthStore.getState().setUser(firebaseUser);
+      } else {
+        useAuthStore.getState().setUser(null);
+      }
+      useAuthStore.getState().setIsLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  return <RouterProvider router={router} />;
 }

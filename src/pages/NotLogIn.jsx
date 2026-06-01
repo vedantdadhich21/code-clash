@@ -11,7 +11,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 
-export function EmptyDemo() {
+export function NotLogIn() {
   return (
    <Empty className='h-[60vh] p-5'>
   <EmptyHeader >
