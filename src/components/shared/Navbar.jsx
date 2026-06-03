@@ -17,7 +17,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="flex items-center justify-between w-full h-18 border-b border-border px-8">
+    <nav className="flex items-center justify-between w-full h-18 border-b-2 bg-navbar px-8">
       {/* Left — Logo */}
       <Link
         to="/"

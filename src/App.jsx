@@ -13,11 +13,15 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/firebase/config'
 import useAuthStore from '@/store/useAuthStore'
 import Auth from "./pages/auth";
+import { Toaster } from "@/components/ui/sonner"
 function Layout() {
   return (
-    <div className="min-h-screen text-foreground">
+   <div className="min-h-screen flex flex-col">
       <Navbar />
-      <Outlet />
+       <Toaster />
+      <main className="flex-1 bg-background flex flex-col">
+        <Outlet />
+      </main>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 
 @theme inline {
+  --color-navbar: var(--navbar);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -36,9 +37,10 @@
 
 @layer base {
   :root {
-    --background: hsl(240 10% 3.9%);
+    --navbar: hsl(0, 0%, 0%);
+    --background: hsl(240, 9%, 9%);
     --foreground: hsl(0 0% 98%);
-    --card: hsl(240 10% 3.9%);
+    --card: hsl(240, 9%, 2%);
     --card-foreground: hsl(0 0% 98%);
     --popover: hsl(240 10% 3.9%);
     --popover-foreground: hsl(0 0% 98%);
