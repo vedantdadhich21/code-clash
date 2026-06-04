@@ -9,7 +9,7 @@ const Navbar = () => {
   const navigate = useNavigate()
     const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
-  console.log(user)
+
 
   const handleLogout = async () => {
     await signOut(auth)

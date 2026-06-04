@@ -48,3 +48,17 @@ export const onRoomUpdate = (roomId, callback) => {
 export const updatePlayerStatus = async (roomId, playerKey, status) => {
   await update(ref(db, `rooms/${roomId}/${playerKey}`), { status })
 }
+
+export const startBattle = async (roomId) => {
+ await update(ref(db, `rooms/${roomId}`), {
+  status: 'active',
+  startTime: Date.now(),
+  problem: {
+    id: 'two-sum',
+    title: 'Two Sum',
+    description: 'Given an array of integers...',
+    examples: ["examples"],
+    testCases: ["testcases"],
+  }
+})
+}

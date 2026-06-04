@@ -2,19 +2,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search } from "lucide-react";
 import React from "react";
-import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { nanoid } from 'nanoid'
-import { createRoom, joinRoom } from '@/firebase/battleService'
-import { useNavigate } from 'react-router-dom'
-import useAuthStore from '@/store/useAuthStore'
+import { nanoid } from "nanoid";
+import { createRoom, joinRoom } from "@/firebase/battleService";
+import { useNavigate } from "react-router-dom";
+import useAuthStore from "@/store/useAuthStore";
 import { toast } from "sonner";
 
-
 const Home = () => {
-  const navigate = useNavigate()
-const user = useAuthStore((state) => state.user)
+  const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
   const {
     register,
     handleSubmit,
@@ -22,29 +20,35 @@ const user = useAuthStore((state) => state.user)
   } = useForm();
 
   const onSubmit = async (data) => {
-    if(!user){
-      console.log("no")
-        toast.error("You are not Logged in Yet",{position : "top-right",action:{ label: "Log In",
-            onClick: () => navigate("/auth"),}})
-      return
+    if (!user) {
+      toast.error("You are not Logged in Yet", {
+        position: "top-right",
+        action: { label: "Log In", onClick: () => navigate("/auth") },
+      });
+      return;
     }
-  const roomExist = await joinRoom(data.roomCode.toUpperCase(), user)
-  if(roomExist){
-  navigate(`/lobby/${data.roomCode.toUpperCase()}`)
-  }
-  else{
-    toast.error("No room exist for this code",{position : "top-right"})
-  }
-};
+    const roomExist = await joinRoom(data.roomCode.toUpperCase(), user);
+    if (roomExist) {
+      navigate(`/lobby/${data.roomCode.toUpperCase()}`);
+    } else {
+      toast.error("No room exist for this code", { position: "top-right" });
+    }
+  };
 
   const handleCreateRoom = async () => {
-    console.log("i ran")
-  const roomId = nanoid(4).toUpperCase()
+    if (!user) {
+      toast.error("You are not Logged in Yet", {
+        position: "top-right",
+        action: { label: "Log In", onClick: () => navigate("/auth") },
+      });
+      return;
+    }
+    const roomId = nanoid(4).toUpperCase();
+    await createRoom(roomId, user);
+    navigate(`/lobby/${roomId}`);
+  };
 
-  await createRoom(roomId, user)
 
-  navigate(`/lobby/${roomId}`)
-}
   return (
     <>
       <div className="flex-1 flex flex-row  ">
@@ -64,7 +68,10 @@ const user = useAuthStore((state) => state.user)
               </CardTitle>
             </CardHeader>
             <CardContent className="m-3">
-              <Button className="w-full h-12 text-xl font-semibold" onClick={handleCreateRoom}>
+              <Button
+                className="w-full h-12 text-xl font-semibold"
+                onClick={handleCreateRoom}
+              >
                 {" "}
                 <Search></Search> Create a room
               </Button>
@@ -94,7 +101,9 @@ const user = useAuthStore((state) => state.user)
                       },
                     })}
                   />
-                  <Button type="submit" className='h-12  font-semibold'>Join Room</Button>
+                  <Button type="submit" className="h-12  font-semibold">
+                    Join Room
+                  </Button>
                 </form>
                 {errors.roomCode && (
                   <p className="text-red-400 text-sm">
