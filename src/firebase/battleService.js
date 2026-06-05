@@ -1,5 +1,6 @@
 import { ref, set, update, onValue, remove, onDisconnect, get } from 'firebase/database'
 import { db } from '@/firebase/config'
+import { problems } from '@/data/problems'
 
 export const createRoom = async (roomId, user) => {
   await set(ref(db, `rooms/${roomId}`), {
@@ -53,12 +54,6 @@ export const startBattle = async (roomId) => {
  await update(ref(db, `rooms/${roomId}`), {
   status: 'active',
   startTime: Date.now(),
-  problem: {
-    id: 'two-sum',
-    title: 'Two Sum',
-    description: 'Given an array of integers...',
-    examples: ["examples"],
-    testCases: ["testcases"],
-  }
+  problem: problems[0],
 })
 }

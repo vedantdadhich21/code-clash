@@ -9,7 +9,7 @@ import { oneDark } from '@codemirror/theme-one-dark'
 const LANGUAGE_MAP = {
   javascript: { extension: javascript(), starter: '// Write your solution here\n\nfunction solve(input) {\n  \n}\n' },
   python:     { extension: python(),     starter: '# Write your solution here\n\ndef solve(input):\n    pass\n' },
-  java:       { extension: java(),       starter: '// Write your solution here\n\nclass Solution {\n    public static void main(String[] args) {\n        \n    }\n}\n' },
+  java:       { extension: java(),       starter: '// Write your solution here\n\nclass Main {\n    public static void main(String[] args) {\n        \n    }\n}\n' },
   cpp:        { extension: cpp(),        starter: '// Write your solution here\n\n#include <iostream>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}\n' },
 }
 
