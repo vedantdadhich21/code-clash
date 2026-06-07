@@ -32,7 +32,10 @@ export const verdictEngine = async (sourceCode, languageId, problemId) => {
             expectedOutput.trim();
         if (actual === expected) {
             return {
-                verdict: "Accepted"
+                verdict: "Accepted",
+                runtime : result.runtime,
+                memory : result.memory,
+
             };
         }
 

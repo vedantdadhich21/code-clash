@@ -14,7 +14,6 @@ import { auth } from '@/firebase/config'
 import useAuthStore from '@/store/useAuthStore'
 import Auth from "./pages/auth";
 import { Toaster } from "@/components/ui/sonner"
-import TempTest from "./tempTest";
 function Layout() {
   return (
    <div className="min-h-screen flex flex-col">
@@ -34,7 +33,6 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/leaderboard", element: <Leaderboard /> },
       {path: "/auth" , element: <Auth/>},
-      {path: '/test',element:<TempTest/>},
       {
         element: <ProtectedRoute />,
         children: [

@@ -8,6 +8,7 @@ import CodeEditor from "@/components/Editor/CodeEditor";
 import TimerBar from "@/components/Battle/TimerBar";
 import { Button } from "@/components/ui/button";
 import { verdictEngine } from "@/utils/verdictEngine";
+import { toast } from "sonner";
 const LANGUAGES = [
   { id: "javascript", label: "JavaScript", icon: "JS" },
   { id: "python", label: "Python", icon: "PY" },
@@ -29,6 +30,7 @@ const Battle = () => {
   const [roomData, setRoomData] = useState(null);
   const [language, setLanguage] = useState("javascript");
   const codeRef = useRef("");
+  const [submitting, setSubmitting] = useState(false);
   const disconnectRef = useRef(null); // track the onDisconnect ref so we don't register twice
 
   // 1) Set up onDisconnect dynamically — needs a one-time read to know which player we are
@@ -70,10 +72,10 @@ const Battle = () => {
 
       console.log("opponent status:");
       console.log(room[opponentKey]?.status);
-      if(room[opponentKey]?.status === "solved"){
+      if (room[opponentKey]?.status === "solved") {
         navigate(`/results/${roomId}`);
       }
-      if(room.player1.status === "solved"){
+      if (room.player1.status === "solved") {
         navigate(`/results/${roomId}`);
       }
       // opponent disconnected
@@ -98,31 +100,40 @@ const Battle = () => {
   };
 
   const handleSubmit = async () => {
-    console.log("1. submit clicked");
+    if (submitting) return;
+    setSubmitting(true);
 
     try {
-      console.log("2. before verdictEngine");
-
       const result = await verdictEngine(
         codeRef.current,
         LANGUAGE_IDS[language],
         roomData.problem.problem_id,
       );
 
-      console.log("3. after verdictEngine");
-
       if (result.verdict === "Accepted") {
+        toast.success("All test cases passed!");
         const isPlayer1 = roomData.player1?.uid === user.uid;
-
         const playerKey = isPlayer1 ? "player1" : "player2";
 
-        await updatePlayerStatus(roomId, playerKey, "solved");
+        await update(ref(db, `rooms/${roomId}/${playerKey}`), {
+          status: "solved",
+          runtime: result.runtime,
+          memory: result.memory,
+          solveTime: Date.now() - roomData.startTime,
+        });
         navigate(`/results/${roomId}`);
+      } else if (result.verdict === "Wrong Answer") {
+        toast.error("Wrong Answer — check your logic and try again.");
+      } else if (result.verdict === "Compile Error") {
+        toast.error(`Compile Error: ${result.message?.slice(0, 120) || 'Check your syntax'}`);
+      } else if (result.verdict === "Runtime Error") {
+        toast.error(`Runtime Error: ${result.message?.slice(0, 120) || 'Your code crashed'}`);
       }
     } catch (err) {
-      console.log("4. error");
-
       console.error(err);
+      toast.error("Submission failed — please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -134,8 +145,8 @@ const Battle = () => {
       <div className="flex items-center justify-center p-4 border-b border-border">
         <TimerBar startTime={roomData.startTime} onTimeUp={handleTimeUp} />
         <div className="p-4  border-border">
-          <Button className="w-full" onClick={handleSubmit}>
-            Submit Solution
+          <Button className="w-full" onClick={handleSubmit} disabled={submitting}>
+            {submitting ? 'Judging...' : 'Submit Solution'}
           </Button>
         </div>
       </div>
@@ -171,10 +182,11 @@ const Battle = () => {
               <button
                 key={lang.id}
                 onClick={() => setLanguage(lang.id)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${language === lang.id
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  language === lang.id
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                  }`}
+                }`}
               >
                 {lang.label}
               </button>
