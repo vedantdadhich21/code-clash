@@ -36,7 +36,7 @@ const Results = () => {
     const meSolved = me?.status === 'solved'
     const oppSolved = opponent?.status === 'solved'
     const oppDisconnected = opponent?.status === 'disconnected'
-
+    console.log(meSolved+" "+ oppSolved + " "+oppDisconnected)
     if (meSolved && !oppSolved) return true        // I solved, they didn't
     if (!meSolved && oppSolved) return false        // They solved, I didn't
     if (meSolved && oppSolved) {                    // Both solved — fastest wins

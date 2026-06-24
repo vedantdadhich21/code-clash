@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { onDisconnect, ref, update, get } from "firebase/database";
 import { db } from "@/firebase/config";
-import { onRoomUpdate, updatePlayerStatus } from "@/firebase/battleService";
+import { onRoomUpdate } from "@/firebase/battleService";
 import useAuthStore from "@/store/useAuthStore";
 import CodeEditor from "@/components/Editor/CodeEditor";
 import TimerBar from "@/components/Battle/TimerBar";
@@ -21,7 +21,6 @@ const LANGUAGE_IDS = {
   java: 62,
   cpp: 54,
 };
-
 const Battle = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();

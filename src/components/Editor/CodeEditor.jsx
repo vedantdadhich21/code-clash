@@ -31,10 +31,11 @@ const CodeEditor = ({ onChange, language = 'javascript' }) => {
           if (update.docChanged) {
             onChange(update.state.doc.toString())
           }
-        }),
+        })
       ],
       parent: containerRef.current,
     })
+    
 
     editorRef.current = view
 
@@ -48,6 +49,7 @@ const CodeEditor = ({ onChange, language = 'javascript' }) => {
 
   return (
     <div ref={containerRef} className="m-8 border-3 rounded-lg" />
+
   )
 }
 

@@ -6,7 +6,6 @@ export const problems = [
   frontend_id: "1",
 
   problem_slug: "two-sum",
-
   difficulty: "Easy",
 
   topics: [

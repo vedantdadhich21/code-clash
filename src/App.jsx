@@ -14,6 +14,7 @@ import { auth } from '@/firebase/config'
 import useAuthStore from '@/store/useAuthStore'
 import Auth from "./pages/auth";
 import { Toaster } from "@/components/ui/sonner"
+import  api  from "./api/api.js"
 function Layout() {
   return (
    <div className="min-h-screen flex flex-col">
@@ -49,9 +50,10 @@ const router = createBrowserRouter([
 
 export default function App() {
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         useAuthStore.getState().setUser(firebaseUser);
+        await api.post('/users')
       } else {
         useAuthStore.getState().setUser(null);
       }
