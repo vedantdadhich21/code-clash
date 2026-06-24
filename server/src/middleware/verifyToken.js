@@ -14,6 +14,7 @@ const verifyToken = async (req, res, next) => {
     req.user = decoded  // { uid, email, name, picture }
     next()  // move to the actual route handler
   } catch (err) {
+    console.log(err)
     return res.status(401).json({ error: 'Invalid token' })
   }
 }

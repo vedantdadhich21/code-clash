@@ -8,12 +8,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { RotateCcw, Swords } from "lucide-react"
+import api from "@/api/api"
+import { useMutation } from "@tanstack/react-query"
 
 const Results = () => {
   const { roomId } = useParams()
   const navigate = useNavigate()
   const [room, setRoom] = useState(null)
   const user = useAuthStore(state => state.user)
+  const matchSavedRef = useRef(false)  // prevent calling mutate() twice
+
+  // useMutation — POST /api/matches
+  const { mutate: saveMatch, isPending: isSaving } = useMutation({
+    mutationFn: (matchData) => api.post('/matches', matchData),
+    onSuccess: () => console.log('Match saved to MongoDB'),
+    onError: (err) => {
+      console.error('Failed to save match:', err)
+      matchSavedRef.current = false  // allow retry on failure
+    },
+  })
 
   useEffect(() => {
     const unsubscribe = onRoomUpdate(roomId, (data) => {
@@ -21,6 +34,63 @@ const Results = () => {
     })
     return unsubscribe
   }, [roomId])
+
+  // Determine winner/loser and fire saveMatch once when room data is ready
+  useEffect(() => {
+    if (!room || matchSavedRef.current) return
+
+    const { me, opponent } = getBattlePlayers(room, user.uid)
+    const meSolved = me?.status === 'solved'
+    const oppSolved = opponent?.status === 'solved'
+    const oppDisconnected = opponent?.status === 'disconnected'
+
+    // Only save if there's a clear outcome (not still in progress)
+    const hasOutcome = meSolved || oppSolved || oppDisconnected || room.status === 'timeout'
+    if (!hasOutcome) return
+
+    // Determine winner/loser
+    let winnerId, loserId, winnerDisplayName, loserDisplayName, winnerSolveTime, loserSolveTime
+
+    if (meSolved && !oppSolved) {
+      winnerId = me.uid; loserId = opponent?.uid
+      winnerDisplayName = me.displayName; loserDisplayName = opponent?.displayName
+      winnerSolveTime = me.solveTime; loserSolveTime = null
+    } else if (!meSolved && oppSolved) {
+      winnerId = opponent?.uid; loserId = me.uid
+      winnerDisplayName = opponent?.displayName; loserDisplayName = me.displayName
+      winnerSolveTime = opponent?.solveTime; loserSolveTime = null
+    } else if (meSolved && oppSolved) {
+      const meWon = (me.solveTime || Infinity) <= (opponent.solveTime || Infinity)
+      winnerId = meWon ? me.uid : opponent.uid
+      loserId = meWon ? opponent.uid : me.uid
+      winnerDisplayName = meWon ? me.displayName : opponent.displayName
+      loserDisplayName = meWon ? opponent.displayName : me.displayName
+      winnerSolveTime = meWon ? me.solveTime : opponent.solveTime
+      loserSolveTime = meWon ? opponent.solveTime : me.solveTime
+    } else if (oppDisconnected) {
+      winnerId = me.uid; loserId = opponent?.uid
+      winnerDisplayName = me.displayName; loserDisplayName = opponent?.displayName
+      winnerSolveTime = null; loserSolveTime = null
+    } else {
+      // Timeout with nobody solving — it's a draw, don't save
+      return
+    }
+
+    if (!winnerId || !loserId) return
+
+    matchSavedRef.current = true
+
+    saveMatch({
+      winnerId,
+      loserId,
+      winnerDisplayName: winnerDisplayName || 'Unknown',
+      loserDisplayName: loserDisplayName || 'Unknown',
+      problemId: room.problem?.problem_id || null,
+      winnerSolveTime: winnerSolveTime || null,
+      loserSolveTime: loserSolveTime || null,
+      roomId,
+    })
+  }, [room, user?.uid, roomId, saveMatch])
 
   if (!room) return (
     <div className="flex items-center justify-center h-[80vh]">

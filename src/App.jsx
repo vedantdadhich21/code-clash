@@ -52,10 +52,15 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        useAuthStore.getState().setUser(firebaseUser);
-        await api.post('/users')
+        const firebaseToken = await firebaseUser.getIdToken()
+        const { data } = await api.post('/users', {}, {
+          headers: {Authorization: `Bearer ${firebaseToken}`}
+        })
+        useAuthStore.getState().setJwt(data.jwt)
+        useAuthStore.getState().setUser(data.user)
+      
       } else {
-        useAuthStore.getState().setUser(null);
+        useAuthStore.getState().logout()
       }
       useAuthStore.getState().setIsLoading(false);
     });

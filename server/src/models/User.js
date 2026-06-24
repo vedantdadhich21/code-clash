@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   photoURL: String,
   wins: { type: Number, default: 0 },
   losses: { type: Number, default: 0 },
+  totalMatches: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 })
 

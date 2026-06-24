@@ -8,7 +8,7 @@ const matchSchema = new mongoose.Schema({
   problemId: String,
   winnerSolveTime: Number,
   loserSolveTime: Number,
-  roomId: String,
+  roomId: { type: String, unique: true },
   playedAt: { type: Date, default: Date.now }
 })
 
