@@ -1,8 +1,16 @@
 import axios from 'axios'
 import useAuthStore from '@/store/useAuthStore'
 
+const getBaseURL = () => {
+  const url = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+  if (url && !url.endsWith('/api') && !url.endsWith('/api/')) {
+    return `${url.replace(/\/$/, '')}/api`
+  }
+  return url
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+  baseURL: getBaseURL()
 })
 
 // before every request — attach the your JWT token
