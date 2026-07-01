@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithRedirect } from 'firebase/auth'
 import { auth, googleProvider } from '@/firebase/config'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -90,8 +90,7 @@ const Auth = () => {
   const handleGoogle = async () => {
     setError('')
     try {
-      await signInWithPopup(auth, googleProvider)
-      navigate('/')
+      await signInWithRedirect(auth, googleProvider)
     } catch (err) {
       console.error(err)
       setError(`${getErrorMessage(err.code)} (${err.code || err.message})`)
