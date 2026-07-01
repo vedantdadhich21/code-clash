@@ -7,12 +7,12 @@ import matchRoutes from './routes/matches.js'
 import leaderboardRoutes from './routes/leaderboard.js'
 import errorHandler from './middleware/error.middleware.js'   // ← add
 import helmet from "helmet";
+import rateLimit from 'express-rate-limit'
 dotenv.config()
 await connectDB()
 
 
 const app = express()
-const rateLimit = require('express-rate-limit')
 const PORT = process.env.PORT || 3000;
 
 
