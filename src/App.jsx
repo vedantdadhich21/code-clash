@@ -51,18 +51,24 @@ const router = createBrowserRouter([
 export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const firebaseToken = await firebaseUser.getIdToken()
-        const { data } = await api.post('/users', {}, {
-          headers: {Authorization: `Bearer ${firebaseToken}`}
-        })
-        useAuthStore.getState().setJwt(data.jwt)
-        useAuthStore.getState().setUser(data.user)
-        // console.log(data.user.uid);
-      } else {
+      try {
+        if (firebaseUser) {
+          const firebaseToken = await firebaseUser.getIdToken()
+          const { data } = await api.post('/users', {}, {
+            headers: {Authorization: `Bearer ${firebaseToken}`}
+          })
+          useAuthStore.getState().setJwt(data.jwt)
+          useAuthStore.getState().setUser(data.user)
+          // console.log(data.user.uid);
+        } else {
+          useAuthStore.getState().logout()
+        }
+      } catch (err) {
+        console.error("Firebase auth sync with backend failed:", err)
         useAuthStore.getState().logout()
+      } finally {
+        useAuthStore.getState().setIsLoading(false);
       }
-      useAuthStore.getState().setIsLoading(false);
     });
     return unsubscribe;
   }, []);
