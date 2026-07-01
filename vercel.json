@@ -1,7 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/((?!assets|favicon.ico|api).*)",
+      "source": "/__/auth/:path*",
+      "destination": "https://code-clash-5e598.firebaseapp.com/__/auth/:path*"
+    },
+    {
+      "source": "/((?!assets|favicon.ico|api|__/auth).*)",
       "destination": "/index.html"
     }
   ]
