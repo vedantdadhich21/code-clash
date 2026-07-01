@@ -5,18 +5,27 @@ import jwt from 'jsonwebtoken'
 import authMiddleware from '../middleware/auth.middleware.js'
 const router = express.Router()
 
+import crypto from 'crypto'
+
 router.post('/', verifyToken, async (req, res,next) => {
   try {
-    const { uid, email, name, picture } = req.user  // from Firebase token
+    const { uid, email, picture } = req.user  // from Firebase token
 
-    // upsert — create if new user, update if exists
-    const user = await User.findOneAndUpdate(
-      { uid },                          // find by firebase uid
-      { uid, email,                     // update these fields
-        displayName: name || email.split('@')[0],
-        photoURL: picture || null },
-      { upsert: true, new: true }       // create if not found, return new doc
-    )
+    let user = await User.findOne({ uid })
+    if (!user) {
+      const randomSuffix = crypto.randomBytes(2).toString('hex').toUpperCase()
+      user = await User.create({
+        uid,
+        email,
+        displayName: `Coder_${randomSuffix}`,
+        photoURL: picture || null
+      })
+    } else {
+      user.email = email
+      user.photoURL = picture || null
+      await user.save()
+    }
+    
     const token = jwt.sign(
       { userId: user._id, firebaseUid: uid },
       process.env.JWT_SECRET,

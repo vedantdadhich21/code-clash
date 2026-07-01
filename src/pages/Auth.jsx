@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { updateProfile } from 'firebase/auth'
 import useAuthStore from '@/store/useAuthStore'
+import { nanoid } from 'nanoid'
 
 const getErrorMessage = (code) => {
   switch (code) {
@@ -46,7 +47,7 @@ const Auth = () => {
   const handleLogin = async () => {
     setError('')
     setIsLoading(true)
-      console.log('attempting login with:', email, password) 
+      // console.log('attempting login with:', email, password) 
     try {
       await signInWithEmailAndPassword(auth, email, password)
       navigate('/')
@@ -65,9 +66,10 @@ const Auth = () => {
     setIsLoading(true)
     try {
       await createUserWithEmailAndPassword(auth, email, password)
-      await updateProfile(auth.currentUser, { displayName: email.split('@')[0] })
+      const randomName = `Coder_${nanoid(4).toUpperCase()}`
+      await updateProfile(auth.currentUser, { displayName: randomName })
       await auth.currentUser.reload() 
-      useAuthStore.getState().setUser({ ...auth.currentUser, displayName: email.split('@')[0] })
+      useAuthStore.getState().setUser({ ...auth.currentUser, displayName: randomName })
       navigate('/')
     } catch (err) {
       console.log(err)

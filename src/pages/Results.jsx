@@ -11,6 +11,13 @@ import { RotateCcw, Swords } from "lucide-react"
 import api from "@/api/api"
 import { useMutation } from "@tanstack/react-query"
 
+// Judge0 returns memory in KB — display as KB
+const formatMemory = (kb) => {
+  if (!kb) return '--'
+  if (kb >= 1024) return `${(kb / 1024).toFixed(1)} MB`
+  return `${kb} KB`
+}
+
 const Results = () => {
   const { roomId } = useParams()
   const navigate = useNavigate()
@@ -18,13 +25,13 @@ const Results = () => {
   const user = useAuthStore(state => state.user)
   const matchSavedRef = useRef(false)  // prevent calling mutate() twice
 
-  // useMutation — POST /api/matches
+  // useMutation — POST /api/matches — identical logic
   const { mutate: saveMatch, isPending: isSaving } = useMutation({
     mutationFn: (matchData) => api.post('/matches', matchData),
     onSuccess: () => console.log('Match saved to MongoDB'),
     onError: (err) => {
       console.error('Failed to save match:', err)
-      matchSavedRef.current = false  // allow retry on failure
+      matchSavedRef.current = false
     },
   })
 
@@ -35,21 +42,16 @@ const Results = () => {
     return unsubscribe
   }, [roomId])
 
-  // Determine winner/loser and fire saveMatch once when room data is ready
+  // Determine winner/loser and fire saveMatch once — identical logic
   useEffect(() => {
     if (!room || matchSavedRef.current) return
-
     const { me, opponent } = getBattlePlayers(room, user.uid)
     const meSolved = me?.status === 'solved'
     const oppSolved = opponent?.status === 'solved'
     const oppDisconnected = opponent?.status === 'disconnected'
-
-    // Only save if there's a clear outcome (not still in progress)
     const hasOutcome = meSolved || oppSolved || oppDisconnected || room.status === 'timeout'
     if (!hasOutcome) return
-
     matchSavedRef.current = true
-
     saveMatch({ roomId })
   }, [room, user?.uid, roomId, saveMatch])
 
@@ -59,22 +61,20 @@ const Results = () => {
     </div>
   )
 
-  // Safe to destructure now — room is guaranteed non-null
   const { me, opponent } = getBattlePlayers(room, user.uid)
 
-  // Determine winner: solved beats unsolved; if both solved, fastest time wins
   const determineWin = () => {
     const meSolved = me?.status === 'solved'
     const oppSolved = opponent?.status === 'solved'
     const oppDisconnected = opponent?.status === 'disconnected'
-    console.log(meSolved+" "+ oppSolved + " "+oppDisconnected)
-    if (meSolved && !oppSolved) return true        // I solved, they didn't
-    if (!meSolved && oppSolved) return false        // They solved, I didn't
-    if (meSolved && oppSolved) {                    // Both solved — fastest wins
+    // console.log(meSolved + " " + oppSolved + " " + oppDisconnected)
+    if (meSolved && !oppSolved) return true
+    if (!meSolved && oppSolved) return false
+    if (meSolved && oppSolved) {
       return (me.solveTime || Infinity) <= (opponent.solveTime || Infinity)
     }
-    if (oppDisconnected) return true                // Opponent left
-    return false                                    // Timeout, nobody solved
+    if (oppDisconnected) return true
+    return false
   }
 
   const iWon = determineWin()
@@ -96,12 +96,12 @@ const Results = () => {
 
       {/* Title */}
       <div className="text-center">
-        <h1 className={`text-6xl font-black tracking-tight ${
+        <h1 className={`text-5xl md:text-6xl font-black tracking-tight ${
           isDraw ? 'text-yellow-400' : iWon ? 'text-green-400' : 'text-red-400'
         }`}>
           {isDraw ? 'DRAW' : iWon ? 'VICTORY' : 'DEFEAT'}
         </h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-muted-foreground mt-2 text-sm md:text-base">
           {isDraw
             ? 'Time ran out — nobody cracked it.'
             : iWon
@@ -110,8 +110,8 @@ const Results = () => {
         </p>
       </div>
 
-      {/* Cards */}
-      <div className="flex gap-6 w-full max-w-3xl">
+      {/* Cards — stacked on mobile, side by side on md+ */}
+      <div className="flex flex-col md:flex-row gap-4 w-full max-w-3xl">
 
         {/* Execution Stats */}
         <Card className="flex-1 bg-card border-border">
@@ -135,8 +135,8 @@ const Results = () => {
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Memory</p>
                 <p className="text-3xl font-bold">
-                  {me?.memory || '--'}
-                  <span className="text-sm font-normal text-muted-foreground ml-1">MB</span>
+                  {/* Judge0 returns memory in KB */}
+                  {me?.memory ? formatMemory(me.memory) : '--'}
                 </p>
                 {me?.memoryBeat && (
                   <p className="text-xs text-green-400 mt-1">Beats {me.memoryBeat}%</p>
@@ -184,7 +184,7 @@ const Results = () => {
               </span>
             </div>
 
-            <p className="text-center text-xs text-muted-foreground mt-0">vs</p>
+            <p className="text-center text-xs text-muted-foreground">vs</p>
 
             {/* Opponent */}
             <div className={`flex items-center justify-between p-3 rounded-lg ${!iWon ? 'bg-muted' : 'bg-muted/50'}`}>
@@ -204,12 +204,11 @@ const Results = () => {
 
           </CardContent>
         </Card>
-
       </div>
 
       {/* Buttons */}
-      <div className="flex gap-4 w-full items-center justify-center pl-7">
-        <Button variant="outline" className="gap-2 px-8 " onClick={() => navigate('/')}>
+      <div className="flex gap-4 items-center justify-center">
+        <Button variant="outline" className="gap-2 px-8" onClick={() => navigate('/')}>
           <RotateCcw className="size-4" /> Rematch
         </Button>
         <Button className="px-8" onClick={() => navigate('/')}>

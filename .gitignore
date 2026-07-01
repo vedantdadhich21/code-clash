@@ -29,4 +29,3 @@ server/.env
 .env
 serviceAccountKey.json
 server/serviceAccountKey.json
-server/.env

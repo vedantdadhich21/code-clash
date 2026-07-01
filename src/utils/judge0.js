@@ -27,7 +27,7 @@ export const pollResult = async (token) => {
         { headers: { 'Content-Type': 'application/json' } }
     )
     const data = await response.json()
-    console.log(data);
+    console.log(data); 
     if(data.status.id > 2){
      return {
     statusId: data.status.id,
