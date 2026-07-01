@@ -18,7 +18,13 @@ const PORT = process.env.PORT || 3000;
 
 app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, max: 20 }))
 app.use(helmet())
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.CLIENT_URL,
+  process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, '') : null
+].filter(Boolean);
+
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: '10kb' }))
 
 app.use('/api/users', userRoutes)
