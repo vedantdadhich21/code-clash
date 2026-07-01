@@ -12,7 +12,7 @@ import { useEffect } from "react";
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/firebase/config'
 import useAuthStore from '@/store/useAuthStore'
-import Auth from "@/pages/auth";
+import Auth from "@/pages/Auth";
 import { Toaster } from "@/components/ui/sonner"
 import  api  from "@/api/api.js"
 function Layout() {
