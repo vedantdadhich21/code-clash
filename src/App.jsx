@@ -58,7 +58,7 @@ export default function App() {
         })
         useAuthStore.getState().setJwt(data.jwt)
         useAuthStore.getState().setUser(data.user)
-      
+        console.log(data.user.uid);
       } else {
         useAuthStore.getState().logout()
       }

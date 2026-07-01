@@ -13,5 +13,7 @@ const useAuthStore = create((set) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
   logout: () => set({ user: null, jwt: null }),
 }))
-
+if (typeof window !== 'undefined') {
+  window.myStore = useAuthStore
+}
 export default useAuthStore

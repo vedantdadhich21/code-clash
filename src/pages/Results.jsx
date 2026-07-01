@@ -48,48 +48,9 @@ const Results = () => {
     const hasOutcome = meSolved || oppSolved || oppDisconnected || room.status === 'timeout'
     if (!hasOutcome) return
 
-    // Determine winner/loser
-    let winnerId, loserId, winnerDisplayName, loserDisplayName, winnerSolveTime, loserSolveTime
-
-    if (meSolved && !oppSolved) {
-      winnerId = me.uid; loserId = opponent?.uid
-      winnerDisplayName = me.displayName; loserDisplayName = opponent?.displayName
-      winnerSolveTime = me.solveTime; loserSolveTime = null
-    } else if (!meSolved && oppSolved) {
-      winnerId = opponent?.uid; loserId = me.uid
-      winnerDisplayName = opponent?.displayName; loserDisplayName = me.displayName
-      winnerSolveTime = opponent?.solveTime; loserSolveTime = null
-    } else if (meSolved && oppSolved) {
-      const meWon = (me.solveTime || Infinity) <= (opponent.solveTime || Infinity)
-      winnerId = meWon ? me.uid : opponent.uid
-      loserId = meWon ? opponent.uid : me.uid
-      winnerDisplayName = meWon ? me.displayName : opponent.displayName
-      loserDisplayName = meWon ? opponent.displayName : me.displayName
-      winnerSolveTime = meWon ? me.solveTime : opponent.solveTime
-      loserSolveTime = meWon ? opponent.solveTime : me.solveTime
-    } else if (oppDisconnected) {
-      winnerId = me.uid; loserId = opponent?.uid
-      winnerDisplayName = me.displayName; loserDisplayName = opponent?.displayName
-      winnerSolveTime = null; loserSolveTime = null
-    } else {
-      // Timeout with nobody solving — it's a draw, don't save
-      return
-    }
-
-    if (!winnerId || !loserId) return
-
     matchSavedRef.current = true
 
-    saveMatch({
-      winnerId,
-      loserId,
-      winnerDisplayName: winnerDisplayName || 'Unknown',
-      loserDisplayName: loserDisplayName || 'Unknown',
-      problemId: room.problem?.problem_id || null,
-      winnerSolveTime: winnerSolveTime || null,
-      loserSolveTime: loserSolveTime || null,
-      roomId,
-    })
+    saveMatch({ roomId })
   }, [room, user?.uid, roomId, saveMatch])
 
   if (!room) return (

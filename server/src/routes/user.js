@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 import authMiddleware from '../middleware/auth.middleware.js'
 const router = express.Router()
 
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verifyToken, async (req, res,next) => {
   try {
     const { uid, email, name, picture } = req.user  // from Firebase token
 
@@ -24,17 +24,18 @@ router.post('/', verifyToken, async (req, res) => {
     )  
     res.status(200).json({jwt:token,user})
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    next(err)
   }
 })
 // GET /api/users/:userId — get user profile
-router.get('/:userId', authMiddleware, async (req, res) => {
- try {
-  const user = await User.findById(req.params.userId)
-  if (!user) return res.status(404).json({ error: 'User not found' })
-  res.json(user)
- } catch (err) {
-  res.status(500).json({ error: err.message }) }
+router.get('/:userId', authMiddleware, async (req, res,next) => {
+  try {
+    const user = await User.findOne({ uid: req.params.userId })
+    if (!user) return res.status(404).json({ error: 'User not found' })
+    res.json(user)
+  } catch (err) {
+    next(err)
+  }
  })
 
 export default router

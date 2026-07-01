@@ -15,7 +15,7 @@ const Navbar = () => {
     await signOut(auth)
     logout()
   }
-
+ 
   return (
     <nav className="flex items-center justify-between w-full h-18 border-b-2 bg-navbar px-8">
       {/* Left — Logo */}
@@ -43,7 +43,9 @@ const Navbar = () => {
       <div className="flex items-center gap-3">
       {user ? (
         <div className="flex items-center gap-4">
-          <span className="text-sm font-bold text-muted-foreground">{user.displayName}</span>
+            <Link
+              to={`/profile/${user.uid}`} 
+              className="text-sm font-bold text-muted-foreground" > {user.displayName}</Link>
           <Button variant="outline" onClick={handleLogout}>Logout</Button>
         </div>
       ) : (

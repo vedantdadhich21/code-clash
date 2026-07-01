@@ -74,9 +74,7 @@ const Battle = () => {
       if (room[opponentKey]?.status === "solved") {
         navigate(`/results/${roomId}`);
       }
-      if (room.player1.status === "solved") {
-        navigate(`/results/${roomId}`);
-      }
+    
       // opponent disconnected
       if (room[opponentKey]?.status === "disconnected") {
         // the other player left — you win by default, go to results
