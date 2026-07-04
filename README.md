@@ -26,7 +26,7 @@
 
 ## 🎬 Demo
 
-> *(Add a screen recording or GIF here)*
+![CodeClash Homepage](./screenshots/home.png)
 
 ---
 
